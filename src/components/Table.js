@@ -7,7 +7,7 @@ function Table() {
   const [filterName, setFiltersName] = useState('');
   const [column, setColumn] = useState('population');
   const [comparison, setComparison] = useState('maior que');
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState(0);
   return (
     <>
       <label htmlFor="name-filter">
@@ -41,6 +41,7 @@ function Table() {
           type="number"
           id="value-filter"
           data-testid="value-filter"
+          value={ value }
           onChange={ (e) => setValue(e.target.value) }
         />
       </label>

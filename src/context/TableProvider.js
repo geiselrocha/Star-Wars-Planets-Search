@@ -4,17 +4,19 @@ import tableContext from './tableContext';
 
 function TableProvider({ children }) {
   const [data, setData] = useState([]);
+  const [filter, setFilter] = useState('');
+  const contextValue = { data, filter, setFilter };
   useEffect(() => {
     const fetchApiData = async () => {
       const endpoint = await fetch('https://swapi-trybe.herokuapp.com/api/planets/');
       const { results } = await endpoint.json();
       results.filter((e) => delete e.residents);
-      return setData(results);
+      setData(results);
     };
     fetchApiData();
   }, []);
   return (
-    <tableContext.Provider value={ { data } }>
+    <tableContext.Provider value={ { contextValue } }>
       {children}
     </tableContext.Provider>
   );

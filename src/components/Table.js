@@ -1,13 +1,33 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import tableContext from '../context/tableContext';
 
 function Table() {
   const { contextValue:
-    { data, filter, setFilter, columnOptions, deleteColumn } } = useContext(tableContext);
+    { data, columnOptions } } = useContext(tableContext);
   const [filterName, setFiltersName] = useState('');
   const [column, setColumn] = useState('population');
   const [comparison, setComparison] = useState('maior que');
   const [value, setValue] = useState(0);
+  const [datafilter, setDataFilter] = useState([]);
+
+  useEffect(() => {
+    setDataFilter(data);
+  }, [data]);
+
+  function handleClickFilter() {
+    let filteredValue = [];
+    if (comparison === 'maior que') {
+      filteredValue = datafilter.filter((item) => Number(item[column])
+        > Number(value));
+    } else if (comparison === 'menor que') {
+      filteredValue = datafilter.filter((item) => Number(item[column])
+        < Number(value));
+    } else if (comparison === 'igual a') {
+      filteredValue = datafilter.filter((item) => Number(item[column])
+      === Number(value));
+    } setDataFilter(filteredValue);
+  }
+
   return (
     <>
       <label htmlFor="name-filter">
@@ -48,15 +68,7 @@ function Table() {
       <button
         type="button"
         data-testid="button-filter"
-        onClick={ () => {
-          setFilter({
-            ...filter,
-            filters: {
-              filterByNumericValues: [{ column, comparison, value }],
-            },
-          });
-          deleteColumn(column);
-        } }
+        onClick={ handleClickFilter }
       >
         Filter
       </button>
@@ -79,24 +91,10 @@ function Table() {
           </tr>
         </thead>
         <tbody>
-          {data
-            .filter((planet) => {
-              const numericValues = filter.filters.filterByNumericValues[0];
-              let filteredValue = [];
-              if (numericValues.comparison === 'maior que') {
-                filteredValue = Number(planet[numericValues.column])
-                  > Number(numericValues.value);
-              } else if (numericValues.comparison === 'menor que') {
-                filteredValue = Number(planet[numericValues.column])
-                  < Number(numericValues.value);
-              } else if (numericValues.comparison === 'igual a') {
-                filteredValue = Number(planet[numericValues.column])
-                  === Number(numericValues.value);
-              } return filteredValue;
-            }).filter((planet) => planet.name.toLowerCase()
-              .includes(filterName.toLowerCase()))
+          {datafilter.filter((planet) => planet.name.toLowerCase()
+            .includes(filterName.toLowerCase()))
             .map((e) => (
-              <tr key={ e.name }>
+              <tr key={ e.name } data-testid="filter">
                 <td>{e.name}</td>
                 <td>{e.rotation_period}</td>
                 <td>{e.orbital_period}</td>

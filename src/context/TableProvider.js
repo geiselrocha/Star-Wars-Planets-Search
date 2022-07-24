@@ -6,15 +6,8 @@ function TableProvider({ children }) {
   const [data, setData] = useState([]);
   const [filter, setFilter] = useState({ filters: { filterByName: { name: '' },
     filterByNumericValues: [{ column: '', comparison: '', value: '' }] } });
-  const [columnOptions, setColumnOptions] = useState([
-    'population', 'orbital_period', 'diameter', 'rotation_period', 'surface_water']);
+  const contextValue = { data, filter, setFilter };
 
-  function deleteColumn(previousColumn) {
-    const newColumn = [...columnOptions];
-    newColumn.splice(newColumn.indexOf(previousColumn), 1); setColumnOptions(newColumn);
-  }
-
-  const contextValue = { data, filter, setFilter, columnOptions, deleteColumn };
   useEffect(() => {
     const fetchApiData = async () => {
       const endpoint = await fetch('https://swapi-trybe.herokuapp.com/api/planets/');

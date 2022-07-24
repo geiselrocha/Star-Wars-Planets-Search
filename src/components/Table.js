@@ -2,17 +2,23 @@ import React, { useContext, useState, useEffect } from 'react';
 import tableContext from '../context/tableContext';
 
 function Table() {
-  const { contextValue:
-    { data, columnOptions } } = useContext(tableContext);
+  const { contextValue: { data } } = useContext(tableContext);
   const [filterName, setFiltersName] = useState('');
   const [column, setColumn] = useState('population');
   const [comparison, setComparison] = useState('maior que');
   const [value, setValue] = useState(0);
   const [datafilter, setDataFilter] = useState([]);
+  const [columnOptions, setColumnOptions] = useState([
+    'population', 'orbital_period', 'diameter', 'rotation_period', 'surface_water']);
 
   useEffect(() => {
     setDataFilter(data);
   }, [data]);
+
+  function setRepeatFilter() {
+    const removeOptions = columnOptions.filter((item) => item !== column);
+    setColumnOptions(removeOptions);
+  }
 
   function handleClickFilter() {
     let filteredValue = [];
@@ -26,6 +32,7 @@ function Table() {
       filteredValue = datafilter.filter((item) => Number(item[column])
       === Number(value));
     } setDataFilter(filteredValue);
+    setRepeatFilter();
   }
 
   return (

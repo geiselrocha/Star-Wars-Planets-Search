@@ -10,12 +10,6 @@ beforeEach(()=>{
   })
 })
 
-// test('I am your test', () => {
-//   render(<App />);
-//   const linkElement = screen.getByText(/Hello, App!/i);
-//   expect(linkElement).toBeInTheDocument();
-// });
-
 test('Testa a cobertura da aplicação', async() => {
   render(<App />);
 
@@ -98,14 +92,49 @@ test('Se ordena os filtros', async () => {
   userEvent.click(removeFilters);
 })
   
-test('Se remove filtro individual', async () => {
+test('Se remove o filtro', async () => {
   render(<App />);
 
   const buttonFilter = await screen.findByTestId('button-filter', '', {timeout: 5000})
   userEvent.click(buttonFilter)
-  const removeAll = screen.getByRole('button', { name: /X/i })
-  expect(removeAll).toBeDefined()
+  userEvent.click(buttonFilter)
+  screen.getByText(/population maior que 0/i)
+  const removeAll = screen.getAllByRole('button', { name: /X/i })
+  expect(removeAll[0]).toBeInTheDocument()
+  userEvent.click(removeAll[0])
+  expect(removeAll[0]).toBeTruthy()
+  userEvent.click(buttonFilter)
+  screen.getByText(/population maior que 0/i)
+  expect(removeAll).toBeInTheDocument()
   userEvent.click(removeAll)
+  expect(removeAll).not.toBeInTheDocument()
   expect(removeAll).toBeTruthy()
 })
   
+test('O input de ordenar por ascendente', async () => {
+  render(<App />);
+    
+  const planetName = ['Yavin IV', 'Tatooine', 'Bespin', 'Endor', 'Kamino', 'Alderaan', 'Naboo', 'Coruscant', 'Dagobah', 'Hoth'];
+  const columnSortButton = await screen.findByTestId('column-sort-button', '', {timeout: 3500})
+  const columnSort = screen.getByTestId('column-sort')
+  const columnSortInputAsc = screen.getByTestId('column-sort-input-asc')
+  userEvent.selectOptions(columnSort, 'diameter')
+  userEvent.click(columnSortInputAsc)
+  userEvent.click(columnSortButton)
+  const planets = await screen.findAllByTestId('planet-name', '', {timeout: 3500})
+  expect(planets).toHaveLength(10)
+  }, 35000)
+    
+test('O input de ordenar por descendente', async () => {
+  render(<App />);
+    
+  const planetName = ['Coruscant', 'Naboo', 'Alderaan', 'Kamino', 'Endor', 'Bespin', 'Tatooine', 'Yavin IV', 'Dagobah', 'Hoth'];
+  const columnSortButton = await screen.findByTestId('column-sort-button', '', {timeout: 3500})
+  const columnSort = screen.getByTestId('column-sort')
+  const columnSortInputAsc = screen.getByTestId('column-sort-input-desc')
+  userEvent.selectOptions(columnSort, 'diameter')
+  userEvent.click(columnSortInputAsc)
+  userEvent.click(columnSortButton)
+  const planets = await screen.findAllByTestId('planet-name', '', {timeout: 3500})
+  expect(planets).toHaveLength(10)
+  }, 35000)

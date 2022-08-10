@@ -22,10 +22,12 @@ function TableProvider({ children }) {
 
   const handleChange = ({ target }) => {
     if (target.id === 'ascending') {
-      setDataFilter((elem) => ({ ...elem, [target.id]: true, downward: false })); return;
-    } if (target.id === 'downward') {
-      setDataFilter((elem) => ({ ...elem, [target.id]: true, ascending: false })); return;
-    } setDataFilter((elem) => ({ ...elem, [target.name]: target.value }));
+      return setDataFilter({ ...setFilter, [target.id]: true, downward: false });
+    }
+    if (target.id === 'downward') {
+      return setDataFilter({ ...setFilter, [target.id]: true, ascending: false });
+    }
+    setDataFilter({ ...setFilter, [target.name]: target.value });
   };
 
   useEffect(() => {
@@ -72,8 +74,8 @@ function TableProvider({ children }) {
 
   const removeFilter = ({ target: { name } }) => {
     if (filterByNumericValues.length === 1) {
-      setDataFilter((elem) => ({
-        ...elem, column_filter: filterByNumericValues[0].column_filter }));
+      setDataFilter(({ ...setFilter,
+        column_filter: filterByNumericValues[0].column_filter }));
       setColumnFilter([filterByNumericValues[0].column_filter, ...columnFilter]);
       setFilterByNumericValues([]);
       return setData(defaultData);

@@ -1,84 +1,26 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import tableContext from '../context/tableContext';
+import Filter from './Filter';
 
 function Table() {
-  const { contextValue: { data } } = useContext(tableContext);
-  const [filterName, setFiltersName] = useState('');
-  const [column, setColumn] = useState('population');
-  const [comparison, setComparison] = useState('maior que');
-  const [value, setValue] = useState(0);
-  const [datafilter, setDataFilter] = useState([]);
-  const [columnOptions, setColumnOptions] = useState([
-    'population', 'orbital_period', 'diameter', 'rotation_period', 'surface_water']);
-
-  useEffect(() => {
-    setDataFilter(data);
-  }, [data]);
-
-  function setRepeatFilter() {
-    const removeOptions = columnOptions.filter((item) => item !== column);
-    setColumnOptions(removeOptions);
-  }
-
-  function handleClickFilter() {
-    let filteredValue = [];
-    if (comparison === 'maior que') {
-      filteredValue = datafilter.filter((item) => Number(item[column])
-        > Number(value));
-    } else if (comparison === 'menor que') {
-      filteredValue = datafilter.filter((item) => Number(item[column])
-        < Number(value));
-    } else if (comparison === 'igual a') {
-      filteredValue = datafilter.filter((item) => Number(item[column])
-      === Number(value));
-    } setDataFilter(filteredValue);
-    setRepeatFilter();
-  }
+  const { data, setFilter: { filterName: name },
+    filterByNumericValues, removeFilter } = useContext(tableContext);
 
   return (
     <>
-      <label htmlFor="name-filter">
-        Search
-        <input
-          type="text"
-          id="name-filter"
-          data-testid="name-filter"
-          onChange={ (e) => setFiltersName(e.target.value) }
-        />
-      </label>
-      <select
-        data-testid="column-filter"
-        onChange={ (e) => setColumn(e.target.value) }
-      >
-        { columnOptions.map((option, index) => (
-          <option key={ index } value={ option }>{ option }</option>
-        )) }
-      </select>
-      <select
-        data-testid="comparison-filter"
-        onChange={ (e) => setComparison(e.target.value) }
-      >
-        <option value="maior que">maior que</option>
-        <option value="menor que">menor que</option>
-        <option value="igual a">igual a</option>
-      </select>
-      <label htmlFor="value-filter">
-        Filter Value
-        <input
-          type="number"
-          id="value-filter"
-          data-testid="value-filter"
-          value={ value }
-          onChange={ (e) => setValue(e.target.value) }
-        />
-      </label>
-      <button
-        type="button"
-        data-testid="button-filter"
-        onClick={ handleClickFilter }
-      >
-        Filter
-      </button>
+      <Filter />
+      { filterByNumericValues && filterByNumericValues.map((elem, index) => (
+        <div key={ index } data-testid="filter">
+          {`${elem.column_filter} ${elem.comparison_filter} ${elem.value_filter}`}
+          <button
+            type="button"
+            name={ elem.column_filter }
+            onClick={ removeFilter }
+          >
+            X
+          </button>
+        </div>
+      )) }
       <table>
         <thead>
           <tr>
@@ -98,11 +40,10 @@ function Table() {
           </tr>
         </thead>
         <tbody>
-          {datafilter.filter((planet) => planet.name.toLowerCase()
-            .includes(filterName.toLowerCase()))
+          {data.filter((planet) => planet.name.toLowerCase().includes(name.toLowerCase()))
             .map((e) => (
-              <tr key={ e.name } data-testid="filter">
-                <td>{e.name}</td>
+              <tr key={ e.name }>
+                <td data-testid="planet-name">{e.name}</td>
                 <td>{e.rotation_period}</td>
                 <td>{e.orbital_period}</td>
                 <td>{e.diameter}</td>

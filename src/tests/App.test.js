@@ -34,26 +34,78 @@ test('Testa a cobertura da aplicação', async() => {
   userEvent.click(buttonFilter)
   expect(hoth).not.toBeInTheDocument()
   
-  userEvent.selectOptions(columnFilter,
-  screen.getByRole('option', { name: /rotation_period/}))
-  userEvent.selectOptions(comparisonFilter,
-  screen.getByRole('option', { name: 'maior que'}))
-  userEvent.type(valueFilter, '500')
+  userEvent.selectOptions(columnFilter, 'rotation_period')
+  userEvent.selectOptions(comparisonFilter, 'maior que')
+  userEvent.type(valueFilter, '10')
   userEvent.click(buttonFilter)
     
-  userEvent.selectOptions(columnFilter,
-  screen.getByRole('option', { name: /diameter/}))
-  userEvent.selectOptions(comparisonFilter,
-  screen.getByRole('option', { name: 'menor que'}))
-  userEvent.type(valueFilter, '4500000000')
+  userEvent.selectOptions(columnFilter, 'diameter')
+  userEvent.selectOptions(comparisonFilter, 'menor que')
+  userEvent.type(valueFilter, '5000')
   userEvent.click(buttonFilter)
+
+  userEvent.selectOptions(columnFilter, 'surface_water')
+  userEvent.selectOptions(comparisonFilter, 'igual a')
+  userEvent.type(valueFilter, '40')
+  userEvent.click(buttonFilter)
+})
+
+test('O input de ordenar por ascendente', async () => {
+  render(<App />);
+    
+  const planetName = ['Yavin IV', 'Tatooine', 'Bespin', 'Endor', 'Kamino', 'Alderaan', 'Naboo', 'Coruscant', 'Dagobah', 'Hoth'];
+  const columnSortButton = await screen.findByTestId('column-sort-button', '', {timeout: 3500})
+  const columnSort = screen.getByTestId('column-sort')
+  const columnSortInputAsc = screen.getByTestId('column-sort-input-asc')
+  userEvent.selectOptions(columnSort, 'population')
+  userEvent.click(columnSortInputAsc)
+  userEvent.click(columnSortButton)
+  const planets = await screen.findAllByTestId('planet-name', '', {timeout: 3500})
+  expect(planets).toHaveLength(10)
+  planets.forEach((planet, index) => expect(planet).toHaveTextContent(planetName[index]))
+}, 35000)
+    
+test('O input de ordenar por descendente', async () => {
+  render(<App />);
+    
+  const planetName = ['Coruscant', 'Naboo', 'Alderaan', 'Kamino', 'Endor', 'Bespin', 'Tatooine', 'Yavin IV', 'Dagobah', 'Hoth'];
+  const columnSortButton = await screen.findByTestId('column-sort-button', '', {timeout: 3500})
+  const columnSort = screen.getByTestId('column-sort')
+  const columnSortInputAsc = screen.getByTestId('column-sort-input-desc')
+  userEvent.selectOptions(columnSort, 'population')
+  userEvent.click(columnSortInputAsc)
+  userEvent.click(columnSortButton)
+  const planets = await screen.findAllByTestId('planet-name', '', {timeout: 3500})
+  expect(planets).toHaveLength(10)
+  planets.forEach((planet, index) => expect(planet).toHaveTextContent(planetName[index]))
+}, 35000)
+
+test('Se ordena os filtros', async () => {
+  render(<App />);
+
+  const columnFilter = screen.getByTestId('column-filter');
+  const valueFilter = screen.getByTestId('value-filter');
+  const buttonFilter = screen.getByTestId('button-filter');
+  const removeFilters = screen.getByRole('button', { name: /remove filters/i });
+
+  expect(columnFilter).toHaveValue('population');
+  expect(valueFilter).toHaveValue(0);
+  expect(removeFilters).toBeInTheDocument();
+
+  userEvent.selectOptions(columnFilter, 'diameter');
+  userEvent.type(valueFilter, '10000');
+  userEvent.click(buttonFilter);
+  userEvent.click(removeFilters);
+})
   
-  userEvent.selectOptions(columnFilter,
-  screen.getByRole('option', { name: /population/}))
-  userEvent.selectOptions(comparisonFilter,
-  screen.getByRole('option', { name: 'igual a'}))
-  userEvent.type(valueFilter, '10465')
+test('Se remove filtro individual', async () => {
+  render(<App />);
+
+  const buttonFilter = await screen.findByTestId('button-filter', '', {timeout: 5000})
   userEvent.click(buttonFilter)
-    
+  const removeAll = screen.getByRole('button', { name: /X/i })
+  expect(removeAll).toBeDefined()
+  userEvent.click(removeAll)
+  expect(removeAll).toBeTruthy()
 })
   
